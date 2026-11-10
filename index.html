@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tata Steel | Carbon-Aware Container Logistics Dashboard (Prototype)</title>
+<style>
+:root{
+  --green:#1C5D45; --deep:#0E4F31; --lime:#8DB51F; --tint:#EEF5EF; --ink:#1A2B3A; --grey:#5B6770;
+  --line:#D9E2DC; --amber:#C98A12; --red:#B3261E; --rust:#B5651D; --hub:#9AA5AE; --bg:#F7FAF8;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Calibri,Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.45}
+header{background:#fff;border-bottom:3px solid var(--green);position:sticky;top:0;z-index:5}
+.hwrap{max-width:1200px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{font-weight:800;letter-spacing:.5px;color:var(--green);font-size:18px;white-space:nowrap}
+.brand small{display:block;font-weight:500;color:var(--grey);font-size:12px;letter-spacing:0}
+nav{display:flex;gap:6px;overflow-x:auto;flex:1;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;min-height:40px}
+nav button.on{background:var(--green);color:#fff;border-color:var(--green)}
+main{max-width:1200px;margin:0 auto;padding:16px 18px 40px}
+.caption{font-size:12px;color:var(--grey);margin:0 0 12px}
+h2{font-size:22px;margin:4px 0 2px}
+.purpose{color:var(--grey);margin:0 0 14px}
+.banner{background:var(--green);color:#fff;border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.banner b{color:#C9E265}
+.banner .big{font-size:19px;line-height:1.35;font-weight:600}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.three div{background:rgba(255,255,255,.1);border-radius:8px;padding:9px 11px;font-size:13.5px}
+.three div b{display:block;font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:#C9E265;margin-bottom:2px}
+.yearbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:#fff;overflow:hidden}
+.seg button{border:0;background:none;padding:8px 13px;font:inherit;font-size:13.5px;cursor:pointer;color:var(--ink);min-height:38px}
+.seg button.on{background:var(--green);color:#fff}
+.lbl{font-size:13px;color:var(--grey)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+.kpi .t{font-size:13px;color:var(--grey);font-weight:600}
+.kpi .v{font-size:28px;font-weight:800;color:var(--green);margin:2px 0}
+.kpi .v .from{font-size:16px;color:var(--grey);font-weight:600}
+.kpi .d{font-size:13px;font-weight:700}
+.kpi .s{font-size:12.5px;color:var(--grey);margin-top:3px}
+.good{color:var(--green)} .bad{color:var(--red)} .warn{color:var(--amber)}
+.sec{display:flex;align-items:baseline;gap:10px;margin:18px 0 8px}
+.sec .n{background:var(--lime);color:#fff;font-weight:800;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+.sec h3{margin:0;font-size:17px}
+.sec span.sub{color:var(--grey);font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h4{margin:0 0 8px;font-size:14.5px}
+.note{font-size:12px;color:var(--grey);margin-top:8px}
+.stack{display:flex;height:30px;border-radius:6px;overflow:hidden;margin:4px 0 2px}
+.stack div{display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--grey);margin:6px 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.brow{display:grid;grid-template-columns:118px 1fr 64px;align-items:center;gap:8px;margin:5px 0;font-size:13px}
+.brow .bars{display:flex;flex-direction:column;gap:2px}
+.brow .bar{height:10px;border-radius:3px}
+.brow .num{text-align:right;font-variant-numeric:tabular-nums;font-size:12.5px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:12px;color:var(--grey);font-weight:600;border-bottom:1px solid var(--line);padding:7px 6px;white-space:nowrap}
+td{border-bottom:1px solid #EEF2EF;padding:8px 6px;vertical-align:top}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tw table{min-width:620px}
+.chip{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.c-do{background:#E2F0D2;color:#3E6B07}
+.c-pilot{background:#FBEFD5;color:#8A5B00}
+.c-park{background:#F8DEDB;color:#8E1F18}
+.c-keep{background:var(--tint);color:var(--green)}
+.c-gold{background:#F6E7B4;color:#7A5A00}.c-silver{background:#E5E9EC;color:#46525B}.c-bronze{background:#F1DCC7;color:#7A4719}.c-gap{background:#F8DEDB;color:#8E1F18}
+.bridge{display:flex;align-items:flex-end;gap:16px;height:190px;padding:6px 4px 0;border-bottom:1px solid var(--line)}
+.bcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;position:relative}
+.bcol .blk{width:70%;max-width:90px;border-radius:5px 5px 0 0}
+.bcol .bv{font-weight:800;font-size:14px;margin-bottom:3px}
+.blab{display:flex;gap:16px;padding:0 4px}
+.blab div{flex:1;text-align:center;font-size:12px;color:var(--grey);margin-top:5px}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.mini div{background:var(--tint);border-radius:8px;padding:8px;text-align:center;font-size:12px;color:var(--grey)}
+.mini b{display:block;font-size:17px;color:var(--green)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.opt{border:1px solid var(--line);border-radius:10px;padding:11px;background:#fff;position:relative}
+.opt.rec{border:2px solid var(--green);background:var(--tint)}
+.opt.rec:before{content:"RECOMMENDED";position:absolute;top:-10px;right:10px;background:var(--green);color:#fff;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px}
+.opt h5{margin:0 0 6px;font-size:14px}
+.opt .m{display:flex;justify-content:space-between;font-size:13px;margin:2px 0}
+.opt .m span:first-child{color:var(--grey)}
+.opt .why{font-size:12px;margin-top:6px}
+.reco{background:var(--green);color:#fff;border-radius:12px;padding:14px 16px;margin:12px 0}
+.reco b{color:#C9E265}
+.controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+select{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);min-height:40px}
+.journey{display:flex;gap:0;overflow-x:auto;padding:4px 0 8px}
+.leg{min-width:132px;border:1px solid var(--line);border-radius:10px;padding:9px;background:#fff;margin-right:8px;flex:none}
+.leg .mode{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.leg .kg{font-size:18px;font-weight:800;margin:3px 0}
+.leg .det{font-size:12px;color:var(--grey)}
+.checks td:last-child{text-align:right}
+.pass{background:#E2F0D2;color:#3E6B07;border-radius:999px;padding:1px 8px;font-size:11.5px;font-weight:700}
+.trend{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-items:end;height:150px;border-bottom:1px solid var(--line);padding:0 6px}
+.tcol{display:flex;gap:3px;align-items:flex-end;justify-content:center;height:100%}
+.tcol div{width:16px;border-radius:3px 3px 0 0;position:relative}
+.tlab{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 6px;text-align:center;font-size:12px;color:var(--grey);margin-top:4px}
+footer{max-width:1200px;margin:0 auto;padding:16px 18px 30px;font-size:12px;color:var(--grey);border-top:1px solid var(--line)}
+footer a{color:var(--green)}
+.hide{display:none}
+@media (max-width:860px){
+  nav{flex-basis:100%;order:3}
+  .hwrap{gap:8px}
+  .kpis{grid-template-columns:1fr 1fr}
+  .grid2,.grid3,.three{grid-template-columns:1fr}
+  .banner .big{font-size:17px}
+  .kpi .v{font-size:24px}
+  .brand{font-size:16px}
+}
+@media (max-width:420px){ .kpis{grid-template-columns:1fr 1fr;gap:8px} .kpi{padding:10px} .kpi .v{font-size:21px} .kpi .v .from{font-size:13px}}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <div class="brand">TATA STEEL<small>Carbon-Aware Container Logistics · Prototype</small></div>
+  <nav id="nav">
+    <button data-t="overview" class="on">1 · Overview</button>
+    <button data-t="where">2 · Where &amp; who</button>
+    <button data-t="decide">3 · Decide</button>
+    <button data-t="proof">4 · Proof</button>
+  </nav>
+</div></header>
+
+<main>
+<p class="caption">Synthetic demonstration data (61,602-container dataset, FY2026-27 to FY2029-30). Not actual Tata Steel performance. Loaded containers, well-to-wheel, reported basis unless stated.</p>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview">
+  <div class="banner">
+    <div class="big">By FY2029-30, carbon-aware freight decisions cut loaded intensity <b>14%</b> (98.7 → 84.9 kg CO₂e/t) and total emissions <b>19% vs no action</b>, while freight cost per tonne falls <b>5%</b>.</div>
+    <div class="three">
+      <div><b>Where</b>Ocean is 70% of emissions; two US export lanes (L5, L4) carry 58%.</div>
+      <div><b>What we do</b>Four Do-now levers that cut carbon and cost together, led by North India road → rail (−77% per container).</div>
+      <div><b>What it delivers</b>~12,000 tCO₂e avoided and ₹75.5 Cr saved over three years, for ₹24–32 Cr invested.</div>
+    </div>
+  </div>
+
+  <div class="yearbar"><span class="lbl">Compare baseline FY2026-27 with:</span>
+    <div class="seg" id="yearSeg">
+      <button data-y="1">FY2027-28</button><button data-y="2">FY2028-29</button><button data-y="3" class="on">FY2029-30</button>
+    </div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="sec"><span class="n">1</span><h3>Where the carbon is</h3><span class="sub">Baseline vs FY2029-30</span></div>
+  <div class="grid3">
+    <div class="card">
+      <h4>Emissions by trade lane (tCO₂e / year, loaded)</h4>
+      <div class="legend"><span><i style="background:#C5CDD2"></i>FY2026-27 baseline</span><span><i style="background:var(--green)"></i>FY2029-30</span></div>
+      <div id="laneBars"></div>
+      <div class="note">L6 falls 75% from the road → rail shift. L5 and L4 grow with volume, but kg per tonne falls on both.</div>
+    </div>
+    <div class="card">
+      <h4>Emissions by transport mode</h4>
+      <div class="lbl">FY2026-27 · 29,618 t</div><div class="stack" id="modeBase"></div>
+      <div class="lbl" style="margin-top:10px">FY2029-30 · 27,818 t</div><div class="stack" id="modeEnd"></div>
+      <div class="legend"><span><i style="background:var(--green)"></i>Ocean</span><span><i style="background:var(--rust)"></i>Road</span><span><i style="background:var(--lime)"></i>Rail</span><span><i style="background:var(--hub)"></i>Hub</span></div>
+      <table style="margin-top:6px"><tr><th>Intensity (g CO₂e / t-km)</th><th class="r">Ocean</th><th class="r">Road</th><th class="r">Rail</th></tr>
+        <tr><td>FY2026-27</td><td class="r">7.4</td><td class="r">57.9</td><td class="r">10.6</td></tr>
+        <tr><td>FY2029-30</td><td class="r">6.9</td><td class="r">57.8</td><td class="r">10.6</td></tr></table>
+      <div class="note">Road is 5× more carbon-intensive than rail. On a China → Jamshedpur journey, two short truck legs are 6% of the distance but about ⅓ of the emissions.</div>
+    </div>
+  </div>
+
+  <div class="sec"><span class="n">2</span><h3>What we do about it</h3><span class="sub">Levers that passed the carbon, cost and service tests</span></div>
+  <div class="card tw">
+    <table>
+      <tr><th>Lever</th><th>Decision</th><th class="r">tCO₂e / yr</th><th>Cost effect</th><th>Service effect</th></tr>
+      <tr><td><b>L6 North India road → rail</b> via Ludhiana ICD</td><td><span class="chip c-do">Do now</span></td><td class="r">2,672</td><td class="good">Saves ₹20,500 / container</td><td>+4.7 days (inside 5-day gate)</td></tr>
+      <tr><td><b>Ocean carrier allocation</b> to lower-intensity carriers</td><td><span class="chip c-do">Do now</span></td><td class="r">821</td><td>Cost-neutral</td><td>No change</td></tr>
+      <tr><td><b>Load consolidation</b> to 22 t per container</td><td><span class="chip c-do">Do now</span></td><td class="r">1,118</td><td class="good">Saves 4–5%</td><td>No change</td></tr>
+      <tr><td><b>Empty-container triangulation</b> (reuse import empties for exports)</td><td><span class="chip c-do">Do now</span></td><td class="r">4,382 → 1,771</td><td class="good">₹31 Cr over 3 years</td><td>Needs import–export matching</td></tr>
+      <tr><td><b>L1 China–Haldia rail</b> package</td><td><span class="chip c-pilot">Pilot</span></td><td class="r">~12% of lane</td><td>Small increase alone</td><td>+1.9 days, reliability unproven</td></tr>
+      <tr><td><b>L7 Kalinganagar rail</b></td><td><span class="chip c-park">Park</span></td><td class="r">193 kg / cont.</td><td class="bad">₹55,600 per t avoided</td><td>+3.3 days on a 0.6-day trip</td></tr>
+      <tr><td><b>L5 US exports via eastern port</b></td><td><span class="chip c-keep">Keep JNPT</span></td><td class="r bad">+3% to +14%</td><td>Cheaper landside</td><td>+3 to 7 days</td></tr>
+    </table>
+    <div class="note">Screening estimates for FY2029-30. Levers overlap on the same containers, so the rows are not added together. Empty-container figures are tracked separately from the loaded baseline.</div>
+  </div>
+
+  <div class="sec"><span class="n">3</span><h3>What it delivers</h3><span class="sub">FY2029-30 vs no-action path, loaded + empty</span></div>
+  <div class="grid2">
+    <div class="card">
+      <h4>Emissions bridge, FY2029-30 (tCO₂e)</h4>
+      <div class="bridge">
+        <div class="bcol"><div class="bv">36,571</div><div class="blk" style="height:88%;background:#C5CDD2"></div></div>
+        <div class="bcol"><div class="bv good">−6,982</div><div class="blk" style="height:16.8%;background:var(--lime);border-radius:5px"></div><div style="height:71.2%"></div></div>
+        <div class="bcol"><div class="bv">29,589</div><div class="blk" style="height:71.2%;background:var(--green)"></div></div>
+      </div>
+      <div class="blab"><div>No action</div><div>Levers (−19%)</div><div>With plan</div></div>
+      <div class="note">With plan = 27,818 t loaded + 1,771 t empty repositioning.</div>
+    </div>
+    <div class="card">
+      <h4>Money and carbon by year</h4>
+      <div class="tw"><table>
+        <tr><th></th><th class="r">FY27-28</th><th class="r">FY28-29</th><th class="r">FY29-30</th><th class="r">3 years</th></tr>
+        <tr><td>tCO₂e avoided</td><td class="r">882</td><td class="r">4,149</td><td class="r">6,982</td><td class="r"><b>~12,000</b></td></tr>
+        <tr><td>Savings (₹ Cr)</td><td class="r">7.9</td><td class="r">27.4</td><td class="r">40.2</td><td class="r"><b>75.5</b></td></tr>
+      </table></div>
+      <div class="mini"><div><b>₹24–32 Cr</b>3-year investment</div><div><b>Year 2</b>payback</div><div><b>2.4–3.1×</b>benefit / investment</div></div>
+      <div class="note">Half-savings stress case still broadly covers the investment.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHERE & WHO ============ -->
+<section id="where" class="hide">
+  <h2>Where &amp; who</h2>
+  <p class="purpose">Which lanes and carriers drive the footprint, compared fairly on the same unit.</p>
+
+  <div class="sec"><span class="n">1</span><h3>Carrier scorecard</h3><span class="sub">Ocean carriers, FY2029-30</span></div>
+  <div class="card tw">
+    <table>
+      <tr><th>Carrier</th><th class="r">Score</th><th>Action</th><th class="r">Measured intensity<br>g CO₂e/TEU-km</th><th class="r">vs default</th><th class="r">On-time</th><th class="r">Measured data</th><th class="r">Transit days</th><th class="r">tCO₂e</th></tr>
+      <tr><td><b>Carrier A</b></td><td class="r">100</td><td><span class="chip c-do">Preferred</span></td><td class="r">63.3</td><td class="r good">−15%</td><td class="r">89.9%</td><td class="r">89%</td><td class="r">23.3</td><td class="r">5,624</td></tr>
+      <tr><td><b>Carrier B</b></td><td class="r">97</td><td><span class="chip c-do">Preferred</span></td><td class="r">69.9</td><td class="r good">−6%</td><td class="r">90.0%</td><td class="r">89%</td><td class="r">23.0</td><td class="r">4,832</td></tr>
+      <tr><td><b>Carrier C</b></td><td class="r">94</td><td><span class="chip c-do">Preferred</span></td><td class="r">74.4</td><td class="r">0%</td><td class="r">88.1%</td><td class="r">89%</td><td class="r">23.6</td><td class="r">4,078</td></tr>
+      <tr><td><b>Carrier D</b></td><td class="r">93</td><td><span class="chip c-pilot">Improvement plan</span></td><td class="r">78.9</td><td class="r bad">+6%</td><td class="r">89.9%</td><td class="r">89%</td><td class="r">24.2</td><td class="r">3,311</td></tr>
+      <tr><td><b>Carrier E</b></td><td class="r">90</td><td><span class="chip c-pilot">Improvement plan</span></td><td class="r">85.5</td><td class="r bad">+15%</td><td class="r">87.5%</td><td class="r">90%</td><td class="r">24.5</td><td class="r">3,321</td></tr>
+    </table>
+    <div class="note">Weights (FY2029-30): carbon 35, cost 25, reliability 20, transit 10, data confidence 10; carbon phases in 15 → 25 → 35. Gates: ≥80% on-time, ≥50 legs, ≥20% measured data. The flag comes from intensity above the default factor, not from the score. Rates are identical across carriers in the synthetic data, so carbon is what separates them here.</div>
+  </div>
+
+  <div class="sec"><span class="n">2</span><h3>Trade lanes</h3><span class="sub">Baseline → FY2029-30</span></div>
+  <div class="card tw">
+    <table id="laneTable"></table>
+  </div>
+
+  <div class="sec"><span class="n">3</span><h3>Port-choice test: L5 Jamshedpur → Houston</h3><span class="sub">Why a cost-only tool gets this wrong</span></div>
+  <div class="card tw">
+    <table>
+      <tr><th>Routing</th><th class="r">kg CO₂e / container</th><th class="r">vs JNPT</th><th class="r">Landside cost*</th><th class="r">Transit days</th><th>Call</th></tr>
+      <tr><td><b>JNPT direct (current)</b><br><span class="lbl">Rail 1,900 km · ocean 18,000 km</span></td><td class="r">3,120</td><td class="r">–</td><td class="r">₹1,27,480</td><td class="r">43.6</td><td><span class="chip c-keep">Keep for US</span></td></tr>
+      <tr><td><b>Haldia + Colombo</b><br><span class="lbl">Road 230 km · ocean 21,170 km</span></td><td class="r">3,437</td><td class="r bad">+10%</td><td class="r good">₹47,340</td><td class="r">46–48</td><td><span class="chip c-park">Fails carbon gate</span></td></tr>
+      <tr><td><b>Vizag + Colombo</b><br><span class="lbl">Rail 780 km · ocean 20,570 km</span></td><td class="r">3,271</td><td class="r bad">+5%</td><td class="r good">₹74,050</td><td class="r">48–50</td><td><span class="chip c-park">Fails carbon gate</span></td></tr>
+    </table>
+    <div class="note">*Inland + terminal + empty repositioning; ocean freight excluded. The extra 2,600–3,200 km at sea outweighs the rail saving. Eastern ports win only for Asia-bound exports (Haldia → Singapore −23%).</div>
+  </div>
+</section>
+
+<!-- ============ DECIDE ============ -->
+<section id="decide" class="hide">
+  <h2>Decide</h2>
+  <p class="purpose">Test a lane change before procurement signs: carbon, cost and transit side by side, with a clear recommendation.</p>
+  <div class="controls">
+    <label class="lbl">Lane<br><select id="laneSel">
+      <option value="L1">L1 China → Haldia → Jamshedpur (import)</option>
+      <option value="L6">L6 North India → Jamshedpur (domestic)</option>
+      <option value="L5">L5 Jamshedpur → JNPT → Houston (export, port choice)</option>
+      <option value="L7">L7 Kalinganagar → Jamshedpur (domestic)</option>
+    </select></label>
+    <div><div class="lbl">Business priority</div>
+      <div class="seg" id="prioSeg"><button data-p="bal" class="on">Balanced</button><button data-p="carbon">Lowest carbon</button><button data-p="cost">Lowest cost</button></div>
+    </div>
+  </div>
+  <div class="reco" id="reco"></div>
+  <div class="opts" id="opts"></div>
+  <div class="note" id="simNote"></div>
+  <div class="card" style="margin-top:12px">
+    <h4>Rules the simulator applies</h4>
+    <table>
+      <tr><td><b>Service gate</b></td><td>No option may add more than 5 transit days.</td></tr>
+      <tr><td><b>Carbon gate</b></td><td>A route or port change may not raise CO₂e, even when it is cheaper.</td></tr>
+      <tr><td><b>Carbon price check</b></td><td>An option that costs more than the internal price (US$40 ≈ ₹3,360 per t avoided) is parked unless it is part of a package that saves money.</td></tr>
+      <tr><td><b>Balanced score</b></td><td>Carbon 35 · cost 25 · transit 10, each scaled best = 1 within the lane. Reliability and data confidence are applied as gates.</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ PROOF ============ -->
+<section id="proof" class="hide">
+  <h2>Proof</h2>
+  <p class="purpose">Every number traces to a container leg, a factor and a data-quality label, and data quality improves every year.</p>
+
+  <div class="sec"><span class="n">1</span><h3>One container, leg by leg</h3><span class="sub">SHP055305 · L5 Jamshedpur → JNPT → Houston · 40-ft, 21.98 t · FY2029-30</span></div>
+  <div class="card">
+    <div class="journey" id="journey"></div>
+    <div class="tw"><table>
+      <tr><th>Leg</th><th class="r">Activity</th><th class="r">Factor</th><th class="r">kg CO₂e</th><th>Data label</th></tr>
+      <tr><td>Road: plant → rail terminal</td><td class="r">15 km × 1.05 × 21.98 t = 346 t-km</td><td class="r">carrier-reported<br><span class="lbl">default 55.1 g/t-km</span></td><td class="r">18.5</td><td><span class="chip c-silver">Silver</span> e-way bill</td></tr>
+      <tr><td>Hub: Jamshedpur rail terminal</td><td class="r">2 TEU</td><td class="r">terminal data</td><td class="r">7.0</td><td><span class="chip c-silver">Silver</span></td></tr>
+      <tr><td>Rail: Jamshedpur → JNPT</td><td class="r">1,900 km × 21.98 t = 41,762 t-km</td><td class="r">railway energy data<br><span class="lbl">default 10.6 g/t-km</span></td><td class="r">462.2</td><td><span class="chip c-gold">Gold</span> railway receipt</td></tr>
+      <tr><td>Hub: JNPT</td><td class="r">2 TEU</td><td class="r">default 3.5 kg/TEU</td><td class="r">7.0</td><td><span class="chip c-bronze">Bronze</span></td></tr>
+      <tr><td>Ocean: JNPT → Houston</td><td class="r">18,000 km × 2 TEU = 36,000 TEU-km</td><td class="r">carrier voyage fuel<br><span class="lbl">default 74.4 g/TEU-km</span></td><td class="r">3,258.7</td><td><span class="chip c-gold">Gold</span> carrier voyage</td></tr>
+      <tr><td>Hub: Houston</td><td class="r">2 TEU</td><td class="r">terminal data</td><td class="r">7.0</td><td><span class="chip c-silver">Silver</span></td></tr>
+      <tr><td><b>Total loaded</b></td><td></td><td></td><td class="r"><b>3,760.4</b></td><td>Totals match the sum of legs ✓</td></tr>
+      <tr><td class="lbl">Linked empty repositioning (JNPT → plant)</td><td class="r lbl">rail 1,900 km + road 15 km</td><td></td><td class="r lbl">90.0</td><td><span class="chip c-gap">Gap estimate</span></td></tr>
+    </table></div>
+    <div class="note">Ocean is 87% of this container's footprint, so it is the leg where carrier allocation matters most. This shipment is customer-booked (FCA), so Tata Steel influences the carrier choice rather than making it: Scope 3 Category 9.</div>
+  </div>
+
+  <div class="sec"><span class="n">2</span><h3>Data quality improves every year</h3><span class="sub">Share of shipments / emissions</span></div>
+  <div class="grid2">
+    <div class="card">
+      <h4>Capture, measured data and gaps</h4>
+      <div class="legend"><span><i style="background:var(--green)"></i>Every leg captured</span><span><i style="background:var(--lime)"></i>Measured (Gold/Silver)</span><span><i style="background:var(--red)"></i>Gap-estimated</span></div>
+      <div class="trend" id="dqTrend"></div>
+      <div class="tlab"><div>FY26-27</div><div>FY27-28</div><div>FY28-29</div><div>FY29-30</div></div>
+      <div class="note">Shipments matched to one record: 19% at baseline → 96% by FY2029-30.</div>
+    </div>
+    <div class="card">
+      <h4>Data labels on every number</h4>
+      <table>
+        <tr><td><span class="chip c-gold">Gold</span></td><td>Measured fuel or energy data with evidence</td></tr>
+        <tr><td><span class="chip c-silver">Silver</span></td><td>Carrier-calculated or lane-specific, method disclosed</td></tr>
+        <tr><td><span class="chip c-bronze">Bronze</span></td><td>Approved default factor × recorded activity</td></tr>
+        <tr><td><span class="chip c-gap">Gap estimate</span></td><td>No record received; estimated from planned route</td></tr>
+      </table>
+      <h4 style="margin-top:12px">Integrity checks (all years)</h4>
+      <table class="checks">
+        <tr><td>Duplicate shipment or leg IDs</td><td><span class="pass">0 · Pass</span></td></tr>
+        <tr><td>Orphaned legs / shipments without legs</td><td><span class="pass">0 · Pass</span></td></tr>
+        <tr><td>Container number conflicts (ISO 6346)</td><td><span class="pass">0 · Pass</span></td></tr>
+        <tr><td>Shipment total vs sum of legs</td><td><span class="pass">±0.002 kg · Pass</span></td></tr>
+        <tr><td>FY2026-27 total vs deck baseline (29,618 t)</td><td><span class="pass">29,617.7 t · Pass</span></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h4>Method and sources</h4>
+    <div style="font-size:13.5px">GHG Protocol Scope 3 (Categories 4 and 9) · ISO 14083:2023 via GLEC Framework v3.2 · SFC India default factors (road 55.1, rail 10.6 g CO₂e/t-km) · Clean Cargo ocean default (74.4 g CO₂e/TEU-km) · hub handling 3.5 kg CO₂e/TEU/visit. Green fuels and insets are reported separately and never subtracted from this footprint.</div>
+  </div>
+</section>
+</main>
+
+<footer>Tata Steelathon 2026 · The Lab of Designers · Prototype on synthetic data. All shipments, carriers, costs and emissions are illustrative; carriers and transporters are fictional. Sample dataset: <a href="https://docs.google.com/spreadsheets/d/16WiVmq9_v7RjtGIYpEk0oq4mh1Fo-ZrIi7W17eNS7u4/edit?usp=sharing" target="_blank" rel="noopener">Google Sheet</a>.</footer>
+
+<script>
+const C={green:'#1C5D45',lime:'#8DB51F',rust:'#B5651D',hub:'#9AA5AE',base:'#C5CDD2'};
+const fmt=n=>n.toLocaleString('en-IN');
+// ---------- Year data (read from the v1.5 prototype, reported basis, loaded) ----------
+const Y=[
+ {fy:'FY2026-27',em:29618,int:98.7,cont:15000,spend:387.1,cpt:12905,empty:4382,cap:35,meas:0,gap:26,ot:90.5},
+ {fy:'FY2027-28',em:29911,int:96.8,cont:15291,spend:393.2,cpt:12726,empty:4203,cap:62,meas:31,gap:15,ot:90.3},
+ {fy:'FY2028-29',em:28811,int:90.5,cont:15479,spend:394.3,cpt:12388,empty:2937,cap:88,meas:63,gap:4,ot:90.1},
+ {fy:'FY2029-30',em:27818,int:84.9,cont:15832,spend:400.6,cpt:12222,empty:1771,cap:98,meas:86,gap:1,ot:89.3}];
+function pct(a,b){return ((b-a)/a*100)}
+function delta(a,b,lowerGood=true,unit='%'){const d=pct(a,b);const good=lowerGood?d<0:d>0;const s=(d>0?'+':'')+d.toFixed(1)+unit;return `<span class="d ${Math.abs(d)<0.05?'':good?'good':'bad'}">${good?'▼':'▲'} ${s} vs baseline</span>`}
+function kpis(i){
+  const b=Y[0],y=Y[i];
+  document.getElementById('kpis').innerHTML=`
+  <div class="kpi"><div class="t">Loaded emissions</div><div class="v"><span class="from">${fmt(b.em)} →</span> ${fmt(y.em)}</div>${delta(b.em,y.em)}<div class="s">tCO₂e · plus ${fmt(y.empty)} t empty moves (was ${fmt(b.empty)}) · ${fmt(y.cont)} containers</div></div>
+  <div class="kpi"><div class="t">Carbon intensity</div><div class="v"><span class="from">${b.int} →</span> ${y.int}</div>${delta(b.int,y.int)}<div class="s">kg CO₂e per tonne shipped · target ≤85</div></div>
+  <div class="kpi"><div class="t">Freight cost per tonne</div><div class="v"><span class="from">₹${fmt(b.cpt)} →</span> ₹${fmt(y.cpt)}</div>${delta(b.cpt,y.cpt)}<div class="s">Spend ₹${y.spend} Cr · on-time ${y.ot}% (gate ≥89%)</div></div>
+  <div class="kpi"><div class="t">Data coverage</div><div class="v"><span class="from">${b.cap}% →</span> ${y.cap}%</div><span class="d good">▲ +${y.cap-b.cap} pts</span><div class="s">shipments with every leg · ${y.meas}% measured · ${y.gap}% gap-estimated</div></div>`;
+}
+document.querySelectorAll('#yearSeg button').forEach(bt=>bt.onclick=()=>{document.querySelectorAll('#yearSeg button').forEach(x=>x.classList.remove('on'));bt.classList.add('on');kpis(+bt.dataset.y)});
+kpis(3);
+
+// ---------- Lanes ----------
+const L=[
+ {id:'L5',n:'Jamshedpur → JNPT → Houston',f:'Export',b:{c:3000,t:9359,kt:156.0,rt:23720,ot:88},e:{c:3129,t:9613,kt:146.6,rt:22642,ot:87}},
+ {id:'L4',n:'Tarapur → JNPT → Newark',f:'Export',b:{c:3000,t:7680,kt:128.0,rt:20010,ot:86},e:{c:3129,t:7872,kt:120.1,rt:19100,ot:87}},
+ {id:'L3',n:'Europe → JNPT → Jamshedpur',f:'Import',b:{c:1575,t:3754,kt:119.2,rt:13640,ot:90},e:{c:1643,t:3890,kt:113.0,rt:13020,ot:89}},
+ {id:'L6',n:'North India → Jamshedpur',f:'Domestic',b:{c:1875,t:3471,kt:92.6,rt:4800,ot:97},e:{c:2049,t:874,kt:21.3,rt:3775,ot:86}},
+ {id:'L1',n:'China → Haldia → Jamshedpur',f:'Import',b:{c:2100,t:2859,kt:68.1,rt:7740,ot:91},e:{c:2190,t:2958,kt:64.5,rt:7388,ot:90}},
+ {id:'L2',n:'China → Vizag → Jamshedpur',f:'Import',b:{c:1575,t:1930,kt:61.3,rt:9006,ot:89},e:{c:1643,t:1995,kt:58.0,rt:8597,ot:90}},
+ {id:'L7',n:'Kalinganagar → Jamshedpur',f:'Domestic',b:{c:1875,t:564,kt:15.0,rt:780,ot:97},e:{c:2049,t:616,kt:15.0,rt:780,ot:97}}];
+const mx=10000;
+document.getElementById('laneBars').innerHTML=L.map(l=>`<div class="brow"><div><b>${l.id}</b> <span class="lbl">${l.f}</span></div><div class="bars"><div class="bar" style="width:${l.b.t/mx*100}%;background:${C.base}"></div><div class="bar" style="width:${l.e.t/mx*100}%;background:${C.green}"></div></div><div class="num">${fmt(l.b.t)}<br><b>${fmt(l.e.t)}</b></div></div>`).join('');
+document.getElementById('laneTable').innerHTML=`<tr><th>Lane</th><th class="r">Containers</th><th class="r">tCO₂e</th><th class="r">kg CO₂e / t</th><th class="r">₹ / t</th><th class="r">On-time</th></tr>`+
+ L.map(l=>`<tr><td><b>${l.id}</b> ${l.n}<br><span class="lbl">${l.f}</span></td><td class="r">${fmt(l.b.c)} → ${fmt(l.e.c)}</td><td class="r">${fmt(l.b.t)} → <b>${fmt(l.e.t)}</b></td><td class="r">${l.b.kt} → <b class="${l.e.kt<l.b.kt?'good':''}">${l.e.kt}</b></td><td class="r">${fmt(l.b.rt)} → ${fmt(l.e.rt)}</td><td class="r">${l.b.ot}% → ${l.e.ot}%</td></tr>`).join('');
+
+// ---------- Modes ----------
+function stack(el,parts){document.getElementById(el).innerHTML=parts.map(([v,c,l])=>`<div style="width:${v}%;background:${c}">${v>=15?l+' '+v+'%':v>=8?v+'%':''}</div>`).join('')}
+stack('modeBase',[[70,C.green,'Ocean'],[22,C.rust,'Road'],[7,C.lime,'Rail'],[1,C.hub,'']]);
+stack('modeEnd',[[76,C.green,'Ocean'],[12,C.rust,'Road'],[11,C.lime,'Rail'],[1,C.hub,'']]);
+
+// ---------- Data quality trend ----------
+document.getElementById('dqTrend').innerHTML=Y.map(y=>`<div class="tcol">
+ <div style="height:${y.cap}%;background:${C.green}" title="Captured ${y.cap}%"></div>
+ <div style="height:${Math.max(y.meas,1)}%;background:${C.lime}" title="Measured ${y.meas}%"></div>
+ <div style="height:${y.gap}%;background:#B3261E" title="Gap ${y.gap}%"></div></div>`).join('');
+// labels on top
+document.querySelectorAll('#dqTrend .tcol div').forEach(d=>{const s=document.createElement('span');s.textContent=d.title.split(' ')[1];s.style.cssText='position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10.5px;color:#5B6770;white-space:nowrap';d.appendChild(s)});
+
+// ---------- Journey strip ----------
+const J=[['Road','15 km','18.5',C.rust,'silver'],['Hub','Jamshedpur terminal','7.0',C.hub,'silver'],['Rail','1,900 km','462.2',C.lime,'gold'],['Hub','JNPT','7.0',C.hub,'bronze'],['Ocean','18,000 km','3,258.7',C.green,'gold'],['Hub','Houston','7.0',C.hub,'silver']];
+document.getElementById('journey').innerHTML=J.map(([m,d,k,c,t])=>`<div class="leg" style="border-top:4px solid ${c}"><div class="mode" style="color:${c}">${m}</div><div class="kg">${k} <span class="lbl">kg</span></div><div class="det">${d}</div><span class="chip c-${t}">${t[0].toUpperCase()+t.slice(1)}</span></div>`).join('');
+
+// ---------- Decision simulator ----------
+// em = tCO2e/yr, cost = ₹ Cr/yr, dd = extra transit days. Figures from deck Sections 7 & 9 and the v1.5 prototype.
+const SIM={
+ L1:{note:'2,100 containers a year, incl. empty moves. Conditional on Haldia–Jamshedpur rail service, Carrier A capacity and payload limits.',route:false,
+   o:[{n:'Current routing',em:3294,cost:34.83,dd:0,days:15.1,cur:true},
+      {n:'Carrier A on ocean leg',em:3095,cost:34.83,dd:0,days:15.1,s:'Tata-booked 50% of volume'},
+      {n:'Road → rail, 100%',em:2902,cost:35.55,dd:1.9,days:17.0},
+      {n:'Consolidate 50% to 22 t',em:3186,cost:33.24,dd:0,days:15.1},
+      {n:'Combined package',em:2658,cost:33.93,dd:1.9,days:17.0,pkg:true}]},
+ L6:{note:'1,875 containers a year. Rail via Ludhiana ICD; on-time 87.3% (4-year average); road kept as fallback.',route:false,
+   o:[{n:'Road (current)',em:3471,cost:18.00,dd:0,cur:true},
+      {n:'Rail, phased 20% (Year 1)',em:2937,cost:17.23,dd:4.7,s:'+4.7 days on the shifted 20%'},
+      {n:'Rail, 100%',em:799,cost:14.16,dd:4.7,s:'1,851 → 426 kg per container'}]},
+ L5:{note:'3,000 containers a year. Cost is landside only (inland, terminal, empty moves); ocean freight excluded, eastern routes carry a feeder premium.',route:true,
+   o:[{n:'JNPT direct (current)',em:9360,cost:38.24,dd:0,days:43.6,cur:true},
+      {n:'Haldia + Colombo',em:10311,cost:14.20,dd:3.4,days:47},
+      {n:'Vizag + Colombo',em:9813,cost:22.22,dd:5.4,days:49}]},
+ L7:{note:'1,875 containers a year. A short 0.6-day road trip.',route:false,
+   o:[{n:'Direct road (current)',em:564,cost:2.93,dd:0,days:0.6,cur:true},
+      {n:'Road → rail → road',em:203,cost:4.94,dd:3.3,days:3.9}]}
+};
+const SHADOW=3360; // ₹ per tCO2e (US$40)
+let prio='bal';
+const money=v=>v>=1e7?'₹'+(v/1e7).toFixed(2)+' Cr':'₹'+(v/1e5).toFixed(1)+' lakh';
+function evaluate(lane){
+  const S=SIM[lane],cur=S.o.find(o=>o.cur);
+  const ems=S.o.map(o=>o.em),cs=S.o.map(o=>o.cost),ds=S.o.map(o=>o.dd);
+  const n=(v,a)=>{const mn=Math.min(...a),mx=Math.max(...a);return mx===mn?1:(mx-v)/(mx-mn)};
+  return S.o.map(o=>{
+    const saved=cur.em-o.em, dc=(o.cost-cur.cost)*1e7;
+    const cpt=saved>0?dc/saved:null;
+    const flags=[];
+    if(o.dd>5) flags.push('Fails service gate (+'+o.dd+' days)');
+    if(S.route&&!o.cur&&o.em>cur.em) flags.push('Fails carbon gate (+'+((o.em/cur.em-1)*100).toFixed(0)+'% CO₂e)');
+    if(!o.cur&&cpt!==null&&cpt>SHADOW&&!o.pkg) flags.push('Above carbon price (₹'+fmt(Math.round(cpt))+' per t avoided)');
+    const score=Math.round((35*n(o.em,ems)+25*n(o.cost,cs)+10*n(o.dd,ds))/70*100);
+    return {...o,saved,dc,cpt,flags,score};
+  });
+}
+function render(){
+  const lane=document.getElementById('laneSel').value,S=SIM[lane];
+  const R=evaluate(lane);
+  let pick;
+  if(prio==='bal'){const ok=R.filter(r=>!r.flags.length);pick=ok.sort((a,b)=>b.score-a.score)[0]}
+  if(prio==='carbon'){const ok=R.filter(r=>!r.flags.some(f=>f.startsWith('Fails')));pick=ok.sort((a,b)=>a.em-b.em)[0]}
+  if(prio==='cost'){pick=[...R].sort((a,b)=>a.cost-b.cost)[0]}
+  const cur=R.find(r=>r.cur);
+  const trap=pick.flags.length?`<br><b>Warning:</b> ${pick.flags.join('; ')}. A cost-only decision would pick this; the carbon-aware rules would not.`:'';
+  document.getElementById('reco').innerHTML=`<div style="font-size:12px;letter-spacing:.5px;opacity:.85">RECOMMENDATION · ${prio==='bal'?'BALANCED':prio==='carbon'?'LOWEST CARBON':'LOWEST COST'}</div>
+   <div style="font-size:19px;font-weight:700;margin:3px 0">${pick.n}</div>
+   <div>${pick.cur?'Keep the current routing.':`${pick.saved>=0?`Saves <b>${fmt(pick.saved)} tCO₂e/yr</b> (−${(pick.saved/cur.em*100).toFixed(1)}%)`:`Adds <b>${fmt(-pick.saved)} tCO₂e/yr</b> (+${(-pick.saved/cur.em*100).toFixed(1)}%)`}, ${pick.dc<=0?`saves <b>${money(-pick.dc)}/yr</b>`:`costs ${money(pick.dc)}/yr more`}, ${pick.dd?`+${pick.dd} transit days`:'no transit impact'}.`}${trap}</div>`;
+  document.getElementById('opts').innerHTML=R.map(r=>`<div class="opt ${r===pick?'rec':''}">
+    <h5>${r.n}</h5>
+    <div class="m"><span>tCO₂e / yr</span><b>${fmt(r.em)}</b></div>
+    <div class="m"><span>vs current</span><b class="${r.saved>0?'good':r.saved<0?'bad':''}">${r.cur?'–':(r.saved>0?'−':'+')+Math.abs(r.saved/cur.em*100).toFixed(1)+'%'}</b></div>
+    <div class="m"><span>Cost ₹ Cr / yr</span><b>${r.cost.toFixed(2)}</b></div>
+    <div class="m"><span>Extra transit</span><b>${r.dd?'+'+r.dd+' d':'–'}</b></div>
+    <div class="m"><span>Balanced score</span><b>${r.score}</b></div>
+    ${r.s?`<div class="why lbl">${r.s}</div>`:''}
+    ${r.flags.map(f=>`<div class="why bad">⚠ ${f}</div>`).join('')}
+  </div>`).join('');
+  document.getElementById('simNote').textContent=S.note+' Illustrative, synthetic data.';
+}
+document.getElementById('laneSel').onchange=render;
+document.querySelectorAll('#prioSeg button').forEach(bt=>bt.onclick=()=>{document.querySelectorAll('#prioSeg button').forEach(x=>x.classList.remove('on'));bt.classList.add('on');prio=bt.dataset.p;render()});
+render();
+
+// ---------- Tabs ----------
+function show(t){['overview','where','decide','proof'].forEach(s=>document.getElementById(s).classList.toggle('hide',s!==t));
+ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));window.scrollTo(0,0);history.replaceState(null,'','#'+t)}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
+if(location.hash&&document.getElementById(location.hash.slice(1)))show(location.hash.slice(1));
+</script>
+</body>
+</html>
